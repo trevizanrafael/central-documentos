@@ -413,18 +413,36 @@
       }
     }
 
+    // Configuração do repositório público onde a documentação será hospedada
+    // Se o site rodar em https://seunome.github.io/repositorio/, o script tenta adivinhar sozinho.
+    // Caso contrário, preencha manualmente aqui:
+    let CONFIG_OWNER = ''; 
+    let CONFIG_REPO = '';
+
     // Inicialização: carrega os arquivos dinamicamente via API do GitHub
     async function initApp() {
       try {
-        // Usa a API do GitHub para listar o conteúdo da pasta 'md' no repositório
-        // Se a sua URL do GitHub Pages mudar, você pode precisar ajustar o trevizanrafael/sysft
-        const repoOwner = 'trevizanrafael';
-        const repoName = 'sysft';
+        let repoOwner = CONFIG_OWNER;
+        let repoName = CONFIG_REPO;
+
+        // Auto-detectar caso esteja rodando no domínio padrão do github pages (.github.io)
+        if (!repoOwner || !repoName) {
+          const hostname = window.location.hostname;
+          const pathname = window.location.pathname;
+          
+          if (hostname.includes('.github.io')) {
+            repoOwner = hostname.split('.')[0];
+            repoName = pathname.split('/')[1]; // ex: /meu-repo/ -> meu-repo
+            if (!repoName) repoName = `${repoOwner}.github.io`;
+          } else {
+            throw new Error('Preencha CONFIG_OWNER e CONFIG_REPO no código, ou rode o projeto no domínio .github.io para detecção automática.');
+          }
+        }
         
         const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/md`);
         
         if (!res.ok) {
-          throw new Error('Não foi possível ler a pasta md pelo GitHub. O repositório é público?');
+          throw new Error(`Não foi possível ler a pasta md de ${repoOwner}/${repoName}. O repositório é público?`);
         }
         
         const arquivosApi = await res.json();
