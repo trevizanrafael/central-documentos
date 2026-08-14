@@ -13,6 +13,9 @@
   <!-- Marked.js para renderizar Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
+  <!-- html2pdf.js para baixar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  
   <style>
     :root {
       --primary: #0A73C9;
@@ -232,6 +235,37 @@
       margin: 2rem 0;
     }
 
+    /* Header da Documentação com botão */
+    .doc-header {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .btn-pdf {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 0.2s;
+    }
+    
+    .btn-pdf:hover {
+      background-color: var(--primary-hover);
+    }
+    
+    .btn-pdf svg {
+      width: 18px;
+      height: 18px;
+    }
+
     /* Loading State */
     .loading {
       display: flex;
@@ -306,6 +340,14 @@
 
   <main class="main-content">
     <div class="doc-container">
+      <div class="doc-header">
+        <button id="btnPdf" class="btn-pdf">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Baixar PDF
+        </button>
+      </div>
       <div id="content" class="markdown-body">
         <div class="loading">Carregando documentação...</div>
       </div>
@@ -319,23 +361,14 @@
       gfm: true
     });
 
-    // Lista de arquivos da pasta md/
-    const arquivos = [
-      { file: '00-IDV_GERAL_SISTEMA.md', title: '00. Identidade Visual' },
-      { file: '01-VISAO_GERAL_E_ARQUITETURA.md', title: '01. Visão Geral e Arq.' },
-      { file: '02-BANCO_DE_DADOS.md', title: '02. Banco de Dados' },
-      { file: '03-INFRAESTRUTURA_E_DEPLOYS.md', title: '03. Infra e Deploys' },
-      { file: '04-MODULO_ADMIN_SISTEMA.md', title: '04. Módulo Admin' },
-      { file: '05-MODULO_USER_CADASTROS.md', title: '05. Módulo Cadastros' },
-      { file: '06-MODULO_PAC_E_MONITORAMENTOS.md', title: '06. Módulo PAC' },
-      { file: '07-UI_IDV_E_PARTIALS.md', title: '07. Padrões de UI' },
-      { file: '08-ROADMAP_SAAS.md', title: '08. Roadmap SaaS' }
-    ];
-
     const navList = document.getElementById('navList');
     const content = document.getElementById('content');
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menuToggle');
+    const btnPdf = document.getElementById('btnPdf');
+
+    // Variável para armazenar o título do documento atual (para o nome do PDF)
+    let currentDocTitle = "Documento";
 
     // Toggle menu mobile
     menuToggle.addEventListener('click', () => {
@@ -343,9 +376,10 @@
     });
 
     // Função para carregar o arquivo markdown
-    async function loadMarkdown(filename, el) {
+    async function loadMarkdown(filename, el, title) {
       try {
         content.innerHTML = '<div class="loading">Carregando documentação...</div>';
+        currentDocTitle = title || filename.replace('.md', '');
         
         // Atualiza estado ativo do menu
         document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
@@ -379,32 +413,79 @@
       }
     }
 
-    // Renderizar o menu lateral
-    arquivos.forEach((item, index) => {
-      const li = document.createElement('li');
-      li.className = 'nav-item';
-      if (index === 0) li.classList.add('active');
+    // Inicialização: carrega os arquivos dinamicamente via API do GitHub
+    async function initApp() {
+      try {
+        // Usa a API do GitHub para listar o conteúdo da pasta 'md' no repositório
+        // Se a sua URL do GitHub Pages mudar, você pode precisar ajustar o trevizanrafael/sysft
+        const repoOwner = 'trevizanrafael';
+        const repoName = 'sysft';
+        
+        const res = await fetch(`https://api.github.com/repos/${repoOwner}/${repoName}/contents/md`);
+        
+        if (!res.ok) {
+          throw new Error('Não foi possível ler a pasta md pelo GitHub. O repositório é público?');
+        }
+        
+        const arquivosApi = await res.json();
+        
+        // Filtra apenas arquivos .md
+        const arquivos = arquivosApi.filter(f => f.name.endsWith('.md'));
+
+        // Renderizar o menu lateral
+        arquivos.forEach((item, index) => {
+          const li = document.createElement('li');
+          li.className = 'nav-item';
+          if (index === 0) li.classList.add('active');
+          
+          li.innerHTML = `
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            ${item.name}
+          `;
+          
+          // Quando clica, baixa o arquivo raw
+          li.onclick = () => loadMarkdown(item.name, li, item.name);
+          navList.appendChild(li);
+        });
+
+        // Carregar o primeiro documento
+        if (arquivos.length > 0) {
+          loadMarkdown(arquivos[0].name, navList.firstElementChild, arquivos[0].name);
+        }
+      } catch (e) {
+        navList.innerHTML = `<li style="padding: 20px; color: #ffcccc; font-size: 0.85rem;">Erro: ${e.message}</li>`;
+      }
+    }
+
+    // Gerar PDF
+    btnPdf.addEventListener('click', () => {
+      const element = document.getElementById('content');
       
-      // Ícone padrão
-      li.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-          <polyline points="10 9 9 9 8 9"></polyline>
-        </svg>
-        ${item.title}
-      `;
+      const opt = {
+        margin:       10,
+        filename:     `${currentDocTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      // Exibe um feedback visual rápido no botão
+      const btnOriginalText = btnPdf.innerHTML;
+      btnPdf.innerHTML = 'Gerando...';
       
-      li.onclick = () => loadMarkdown(item.file, li);
-      navList.appendChild(li);
+      html2pdf().set(opt).from(element).save().then(() => {
+        btnPdf.innerHTML = btnOriginalText;
+      });
     });
 
-    // Carregar o primeiro documento ao iniciar
-    if (arquivos.length > 0) {
-      loadMarkdown(arquivos[0].file, navList.firstElementChild);
-    }
+    // Inicia a aplicação
+    initApp();
 
   </script>
 </body>
