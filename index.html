@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central de Documentação - FoodTech</title>
+  
+  <!-- Fontes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Marked.js para renderizar Markdown -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <style>
+    :root {
+      --primary: #0A73C9;
+      --primary-hover: #0860a8;
+      --secondary: #222222;
+      --bg-color: #F4F5F7;
+      --card-bg: #FFFFFF;
+      --text-main: #222222;
+      --text-muted: #555555;
+      --border-color: #E5E7EB;
+      --sidebar-width: 300px;
+      --hover-bg: #DCEEFF;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--secondary);
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-header p {
+      font-size: 0.85rem;
+      color: #9CA3AF;
+      margin-top: 4px;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 16px 0;
+    }
+
+    .nav-item {
+      padding: 10px 24px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: #D1D5DB;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: #FFFFFF;
+    }
+
+    .nav-item.active {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      font-weight: 500;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .doc-container {
+      background-color: var(--card-bg);
+      padding: 48px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      width: 100%;
+      max-width: 900px;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* Markdown Styles */
+    .markdown-body {
+      line-height: 1.7;
+      font-size: 1rem;
+      color: var(--text-main);
+    }
+
+    .markdown-body h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .markdown-body h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+    }
+
+    .markdown-body h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .markdown-body p {
+      margin-bottom: 1rem;
+    }
+
+    .markdown-body a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .markdown-body a:hover {
+      text-decoration: underline;
+    }
+
+    .markdown-body ul, .markdown-body ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .markdown-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    .markdown-body code {
+      background-color: #F3F4F6;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+      color: #EF4444;
+    }
+
+    .markdown-body pre {
+      background-color: #1F2937;
+      color: #E5E7EB;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+    }
+
+    .markdown-body pre code {
+      background-color: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--primary);
+      background-color: var(--hover-bg);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 0 8px 8px 0;
+      color: var(--secondary);
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1.5rem;
+    }
+
+    .markdown-body th, .markdown-body td {
+      border: 1px solid var(--border-color);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    .markdown-body th {
+      background-color: #F9FAFB;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+
+    .markdown-body tr:nth-child(even) {
+      background-color: #F9FAFB;
+    }
+
+    .markdown-body hr {
+      border: 0;
+      border-top: 1px solid var(--border-color);
+      margin: 2rem 0;
+    }
+
+    /* Loading State */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+    }
+
+    /* Mobile Responsive */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 20;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        width: 100%;
+      }
+      
+      .doc-container {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="menu-toggle" id="menuToggle">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </button>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h1>FoodTech</h1>
+      <p>Central de Conhecimento</p>
+    </div>
+    <ul class="nav-list" id="navList">
+      <!-- Links serão injetados via JS -->
+    </ul>
+  </aside>
+
+  <main class="main-content">
+    <div class="doc-container">
+      <div id="content" class="markdown-body">
+        <div class="loading">Carregando documentação...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Configuração do marked.js
+    marked.setOptions({
+      breaks: true,
+      gfm: true
+    });
+
+    // Lista de arquivos da pasta md/
+    const arquivos = [
+      { file: '00-IDV_GERAL_SISTEMA.md', title: '00. Identidade Visual' },
+      { file: '01-VISAO_GERAL_E_ARQUITETURA.md', title: '01. Visão Geral e Arq.' },
+      { file: '02-BANCO_DE_DADOS.md', title: '02. Banco de Dados' },
+      { file: '03-INFRAESTRUTURA_E_DEPLOYS.md', title: '03. Infra e Deploys' },
+      { file: '04-MODULO_ADMIN_SISTEMA.md', title: '04. Módulo Admin' },
+      { file: '05-MODULO_USER_CADASTROS.md', title: '05. Módulo Cadastros' },
+      { file: '06-MODULO_PAC_E_MONITORAMENTOS.md', title: '06. Módulo PAC' },
+      { file: '07-UI_IDV_E_PARTIALS.md', title: '07. Padrões de UI' },
+      { file: '08-ROADMAP_SAAS.md', title: '08. Roadmap SaaS' }
+    ];
+
+    const navList = document.getElementById('navList');
+    const content = document.getElementById('content');
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+
+    // Toggle menu mobile
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+    });
+
+    // Função para carregar o arquivo markdown
+    async function loadMarkdown(filename, el) {
+      try {
+        content.innerHTML = '<div class="loading">Carregando documentação...</div>';
+        
+        // Atualiza estado ativo do menu
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        if(el) el.classList.add('active');
+
+        // Fetch do arquivo
+        const response = await fetch(`md/${filename}`);
+        if (!response.ok) throw new Error('Arquivo não encontrado');
+        
+        const markdown = await response.text();
+        content.innerHTML = marked.parse(markdown);
+        
+        // Em mobile, fecha a sidebar após clicar
+        if(window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+        }
+        
+        // Volta para o topo suavemente
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      } catch (error) {
+        content.innerHTML = `
+          <div style="text-align:center; padding: 40px;">
+            <h2 style="color: var(--secondary); margin-bottom: 10px;">Erro ao carregar documento</h2>
+            <p style="color: var(--text-muted);">${error.message}</p>
+            <p style="color: var(--text-muted); font-size: 0.9em; margin-top: 20px;">
+              Certifique-se de estar rodando este arquivo através de um servidor local (ex: Live Server) e não apenas com duplo clique no arquivo (file://), pois navegadores bloqueiam requisições locais por segurança (CORS).
+            </p>
+          </div>
+        `;
+      }
+    }
+
+    // Renderizar o menu lateral
+    arquivos.forEach((item, index) => {
+      const li = document.createElement('li');
+      li.className = 'nav-item';
+      if (index === 0) li.classList.add('active');
+      
+      // Ícone padrão
+      li.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        ${item.title}
+      `;
+      
+      li.onclick = () => loadMarkdown(item.file, li);
+      navList.appendChild(li);
+    });
+
+    // Carregar o primeiro documento ao iniciar
+    if (arquivos.length > 0) {
+      loadMarkdown(arquivos[0].file, navList.firstElementChild);
+    }
+
+  </script>
+</body>
+</html>
