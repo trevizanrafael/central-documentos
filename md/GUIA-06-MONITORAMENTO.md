@@ -85,8 +85,31 @@ Na parte superior do módulo de Monitoramento, você pode alternar entre:
 
 ---
 
-## 7. Dicas
+## 7. Anexando Documentos ao Monitoramento
+
+É possível anexar um arquivo (foto, PDF, laudo, etc.) diretamente em um registro de monitoramento salvo — por exemplo, uma foto da temperatura no termômetro, um laudo laboratorial ou um formulário físico assinado.
+
+### Como anexar
+
+1. Salve o monitoramento normalmente clicando em **💾 Salvar**.
+2. Após salvo, o botão **📎 Documento** ficará disponível na barra de ações.
+3. Clique em **📎 Documento** e selecione o arquivo no seu computador.
+   - Formatos aceitos: **JPG, PNG, WEBP, PDF**
+   - Tamanho máximo por arquivo: **10 MB**
+4. O arquivo será enviado e vinculado ao registro automaticamente.
+
+### Como visualizar o anexo
+
+- Com o registro selecionado, clique em **👁 Visualizar** na barra de ações para abrir o documento numa janela.
+
+> **Importante:** O botão **Documento** só aparece **depois que o registro já foi salvo**. Não é possível anexar um arquivo em modo "Novo" (antes de salvar pela primeira vez).
+
+---
+
+## 8. Dicas
 
 - Preencha os monitoramentos **no horário correto** em que a inspeção foi realizada.
 - Em caso de dúvida sobre o critério de conformidade, consulte o Plano de Ação ou o seu Responsável Técnico.
 - Utilize o campo "Observações" para registrar qualquer situação incomum, mesmo que o resultado seja "Conforme".
+- Ao anexar documentos, prefira fotos em **JPG** para menor tamanho de arquivo, ou **PDF** para laudos e formulários oficiais.
+
